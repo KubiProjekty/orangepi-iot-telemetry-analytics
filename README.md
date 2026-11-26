@@ -12,8 +12,8 @@ Projekt odwzorowuje pełny cykl życia danych: od automatycznego poboru z API i 
 
 * **Serwer zbierający dane:** Orange Pi PC Plus (Linux bez środowiska graficznego, zarządzany zdalnie przez SSH).
 * **Magazyn lokalny i sieciowy:** Pendrive zamontowany w `/mnt/python_skrypty/` udostępniony w sieci lokalnej przez serwer **Samba**.
-* **Automatyzacja ETL i Backupu:** Harmonogram zadań `cron` uruchamiający cyklicznie skrypty Pythona (`pogoda.py`, `samoloty.py`, `zdrowie_serwera.py`, `kursy_walut.py`) oraz codzienny skrypt `auto_backup.sh` (`git pull --rebase` + `git push`) aktualizujący repozytorium GitHub.
-* **Monitoring na żywo:** Lokalna baza **SQLite (`moje_dane.db`)** zasilająca 3 dashboardy czasu rzeczywistego w **Grafanie** (port `3000`) oraz publiczny dashboard w **Streamlit Community Cloud**.
+* **Automatyzacja ETL i Backupu:** Harmonogram zadań `cron` uruchamiający cyklicznie skrypty Pythona (`samoloty.py` co 8 min, `pogoda.py` co 10 min, `zdrowie_serwera.py` co godzinę, `kursy_walut.py` raz dziennie) oraz **cogodzinny** skrypt `auto_backup.sh` (`5 * * * *`, `git pull --rebase` + `git push`) aktualizujący repozytorium GitHub.
+* **Monitoring na żywo:** Lokalna baza **SQLite (`moje_dane.db`)** zasilająca 3 dashboardy czasu rzeczywistego w **Grafanie** (port `3000`) oraz publiczny, dwuzakładkowy dashboard w **Streamlit Community Cloud**.
 
 ### Zbierane źródła danych (`/dane`)
 1. `historia_lotow.csv` – ruch lotniczy w promieniu 100 km od **Annopola** (API OpenSky Network: ICAO24, numer lotu, kraj pochodzenia, wysokość [m], prędkość [km/h], kurs).
@@ -26,11 +26,11 @@ Projekt odwzorowuje pełny cykl życia danych: od automatycznego poboru z API i 
 
 ## ✅ 2. Zrealizowane Moduły Projektu
 
-- [x] **Moduł 0: Wersjonowanie i Automatyzacja (Git & GitHub)** – konfiguracja repozytorium, tokenów dostępu, struktury folderów oraz w pełni zautomatyzowanego backupu z Orange Pi (`cron` + `auto_backup.sh`).
+- [x] **Moduł 0: Wersjonowanie i Automatyzacja (Git & GitHub)** – konfiguracja repozytorium, tokenów dostępu, struktury folderów oraz w pełni zautomatyzowanego, cogodzinnego backupu z Orange Pi (`cron` + `auto_backup.sh`).
 - [x] **Moduł 1: Czyszczenie Danych i Eksploracja Statystyczna (Python / Pandas / Seaborn)** – wykrycie zakłóceń transponderów ADS-B, analiza korelacji i weryfikacja danych ze zewnętrznymi radarami (`analiza/01_eksploracja_i_czyszczenie.ipynb`).
 - [x] **Moduł 2: Hurtownia Danych i Zaawansowany SQL (SQLite)** – agregacja czasowa, eliminacja błędu *fan-out* przy złączeniach, `CASE WHEN`, `CTE (WITH)` oraz funkcje okna `RANK() OVER`, `LAG() OVER` i średnia krocząca `AVG() OVER` (`analiza/02_zaawansowany_sql.ipynb`).
 - [x] **Moduł 3: Modelowanie i Predykcja (Machine Learning / Scikit-Learn)** – klasyfikacja profilu operacji lotniczych z wykorzystaniem algorytmu `RandomForestClassifier` z wynikiem **90.5% skuteczności** (`analiza/03_machine_learning_predykcja.ipynb`).
-- [x] **Moduł 4: Interaktywna Aplikacja Webowa (Streamlit + Plotly)** – wdrożenie publicznego dashboardu z dynamicznymi filtrami i automatycznym odświeżaniem danych z repozytorium (`app.py`).
+- [x] **Moduł 4: Interaktywna Aplikacja Webowa (Streamlit + Plotly)** – wdrożenie dwuzakładkowego dashboardu (*Radar Lotniczy & Orange Pi* oraz *Pogoda & Smog dla 3 miast*) z filtrami zakresu czasu, wysokości, krajów i miast (`app.py`).
 
 ---
 
