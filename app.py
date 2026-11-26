@@ -69,7 +69,7 @@ tab1, tab2 = st.tabs(["✈️ Radar Lotniczy & Orange Pi", "🌤️ Pogoda & Smo
 with tab1:
     loty_filtr = df_loty_czas[
         (df_loty_czas['Kraj_Pochodzenia'].isin(wybrane_kraje)) & 
-        (df_loty_czas['Wysokosc_m'].between(zakres_wys, zakres_wys))
+        (df_loty_czas['Wysokosc_m'].between(*zakres_wys))
     ]
 
     col1, col2, col3, col4 = st.columns(4)
