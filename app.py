@@ -74,7 +74,7 @@ with tab2:
     for idx, row in ostatnia_pogoda.iterrows():
         miasto = row['Miasto']
         pm25_wiersz = ostatni_smog[ostatni_smog['Miasto'] == miasto]
-        pm25_val = f" | Smog PM2.5: {pm25_wiersz['PM2_5'].values:.1f} µg/m³" if len(pm25_wiersz) and 'PM2_5' in pm25_wiersz else ""
+        pm25_val = f" | Smog PM2.5: {pm25_wiersz['PM2_5'].values[0]:.1f} µg/m³" if len(pm25_wiersz) and 'PM2_5' in pm25_wiersz else ""
         with cols[idx]:
             st.metric(
                 label=f"📍 {miasto}",
