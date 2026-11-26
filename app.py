@@ -17,7 +17,7 @@ def wczytaj_dane():
     zdrowie = pd.read_csv(base_url + "historia_zdrowia.csv")
     
     for df in [loty, pogoda, smog, zdrowie]:
-        df['Data'] = pd.to_datetime(df['Data'])
+        df['Data'] = pd.to_datetime(df['Data']); df['Miasto'] = df['Miasto'].astype(str).str.replace('_', ' ') if 'Miasto' in df.columns else None
         
     loty = loty[loty['Predkosc_kmh'] <= 1200].copy()
     return loty, pogoda, smog, zdrowie
