@@ -7,7 +7,7 @@ st.set_page_config(page_title="Orange Pi IoT & Radar Dashboard", page_icon="🛰
 st.title("🛰️ Orange Pi IoT Telemetry & Air Traffic Dashboard")
 st.markdown("Interaktywny podgląd danych zbieranych w czasie rzeczywistym przez **Orange Pi PC Plus** (Mińsk Mazowiecki / Radar Annopol).")
 
-base_url = "https://raw." + "://githubusercontent.com"
+base_url = "https://raw" + chr(46) + "githubusercontent" + chr(46) + "com/KubiProjekty/orangepi-iot-telemetry-analytics/main/dane/"
 
 @st.cache_data(ttl=300)
 def wczytaj_dane():
