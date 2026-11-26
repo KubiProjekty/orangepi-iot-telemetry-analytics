@@ -17,7 +17,9 @@ def wczytaj_dane():
     zdrowie = pd.read_csv(base_url + "historia_zdrowia.csv")
     
     for df in [loty, pogoda, smog, zdrowie]:
-        df['Data'] = pd.to_datetime(df['Data']); df['Miasto'] = df['Miasto'].astype(str).str.replace('_', ' ') if 'Miasto' in df.columns else None
+        df['Data'] = pd.to_datetime(df['Data'])
+        if 'Miasto' in df.columns:
+            df['Miasto'] = df['Miasto'].astype(str).str.replace('_', ' ')
         
     loty = loty[loty['Predkosc_kmh'] <= 1200].copy()
     return loty, pogoda, smog, zdrowie
@@ -64,24 +66,15 @@ with tab1:
     st.subheader("📋 Ostatnie zarejestrowane przeloty")
     st.dataframe(loty_filtr.sort_values("Data", ascending=False).head(15), use_container_width=True)
 
-# === ZAKŁADKA 2: POGODA I SMOG (ODWZOROWANIE GRAFANY) ===
+# === ZAKŁADKA 2: POGODA I SMOG (PEŁNE ODWZOROWANIE GRAFANY 1:1) ===
 with tab2:
-    st.subheader("🌡️ Aktualne warunki pogodowe i jakość powietrza (ostatni odczyt)")
     ostatnia_pogoda = df_pogoda.sort_values("Data").groupby("Miasto").last().reset_index()
     ostatni_smog = df_smog.sort_values("Data").groupby("Miasto").last().reset_index()
     
-    cols = st.columns(len(ostatnia_pogoda))
+    st.subheader("🌡️ Aktualna Temperatura (°C)")
+    cols_t = st.columns(len(ostatnia_pogoda))
     for idx, row in ostatnia_pogoda.iterrows():
-        miasto = row['Miasto']
-        pm25_wiersz = ostatni_smog[ostatni_smog['Miasto'] == miasto]
-        pm25_val = f" | Smog PM2.5: {pm25_wiersz['PM2_5'].values[0]:.1f} µg/m³" if len(pm25_wiersz) and 'PM2_5' in pm25_wiersz else ""
-        with cols[idx]:
-            st.metric(
-                label=f"📍 {miasto}",
-                value=f"{row['Temp_C']:.1f} °C",
-                delta=f"Wiatr: {row['Wiatr_kmh']} km/h | {row['Cisnienie_hPa']} hPa{pm25_val}",
-                delta_color="off"
-            )
+        cols_t[idx].metric(label=row['Miasto'], value=f"{row['Temp_C']:.1f} °C")
 
     st.divider()
     g1, g2 = st.columns(2)
@@ -96,6 +89,28 @@ with tab2:
         st.plotly_chart(fig_bar, use_container_width=True)
 
     if 'PM2_5' in df_smog.columns:
-        st.subheader("🌫️ Stężenie pyłu zawieszonego PM2.5 w czasie [µg/m³]")
+        st.divider()
+        st.subheader("🌫️ Aktualny Smog PM2.5 (µg/m³)")
+        cols_s = st.columns(len(ostatni_smog))
+        for idx, row in ostatni_smog.iterrows():
+            cols_s[idx].metric(label=row['Miasto'], value=f"{row['PM2_5']:.1f} µg/m³")
+            
         fig_smog = px.line(df_smog, x="Data", y="PM2_5", color="Miasto", markers=True)
         st.plotly_chart(fig_smog, use_container_width=True)
+
+    st.divider()
+    st.subheader("🔽 Aktualne Ciśnienie (hPa)")
+    cols_p = st.columns(len(ostatnia_pogoda))
+    for idx, row in ostatnia_pogoda.iterrows():
+        cols_p[idx].metric(label=row['Miasto'], value=f"{row['Cisnienie_hPa']:.0f} hPa")
+
+    st.subheader("💨 Aktualny Wiatr (km/h)")
+    cols_w = st.columns(len(ostatnia_pogoda))
+    for idx, row in ostatnia_pogoda.iterrows():
+        cols_w[idx].metric(label=row['Miasto'], value=f"{row['Wiatr_kmh']:.1f} km/h")
+
+    if 'Wilgotnosc_proc' in ostatnia_pogoda.columns:
+        st.subheader("💧 Aktualna Wilgotność (%)")
+        cols_h = st.columns(len(ostatnia_pogoda))
+        for idx, row in ostatnia_pogoda.iterrows():
+            cols_h[idx].metric(label=row['Miasto'], value=f"{row['Wilgotnosc_proc']:.0f} %")
